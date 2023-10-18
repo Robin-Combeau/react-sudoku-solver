@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
-  const [grid, setGrid] = useState([
+export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
+  const emptyGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -11,7 +11,8 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0]
-  ]);
+  ]
+  const [grid, setGrid] = useState(emptyGrid);
 
   useEffect(() => {
     // Fetch the initial Sudoku grid from the API when the component mounts
@@ -23,6 +24,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
       })
       .catch((error) => {
         console.error('Error fetching initial grid:', error);
+        setGrid(emptyGrid);
       });
   }, []);
 
@@ -39,18 +41,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
   };
 
   const clearGrid = () => {
-    const clearGrid = [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ];
-    setGrid(clearGrid);
+    setGrid(emptyGrid);
   };
 
   // "Clear" Button
@@ -64,7 +55,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
   // "New" Button
   useEffect(() => {
     if (buttonClickInfo === 'new') {
-      setGrid(null);
+      setGrid(emptyGrid);
       // Fetch a new grid
       fetch('https://sudoku-api.vercel.app/api/dosuku')
         .then((response) => response.json())
@@ -73,6 +64,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
           setGrid(newGrid);
         })
         .catch((error) => {
+          setGrid(emptyGrid);
           console.error('Error fetching new grid:', error);
         });
       setButtonClickInfo('');
@@ -129,8 +121,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
     if (solve()) {
       setGrid(solvedGrid);
     } else {
-      // TODO - Update this to display a text a the bottom maybe
-      alert('no solution');
+      onError('There is an error in the grid. No solution was found.');
     }
 
   };
@@ -142,10 +133,6 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo }) {
       setButtonClickInfo('');
     }
   }, [buttonClickInfo]);
-
-  if (grid === null) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <>
