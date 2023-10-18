@@ -15,7 +15,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
   const [grid, setGrid] = useState(emptyGrid);
 
   useEffect(() => {
-    // Fetch the initial Sudoku grid from the API when the component mounts
+    // Fetch the initial Sudoku grid from the API
     fetch('https://sudoku-api.vercel.app/api/dosuku')
       .then((response) => response.json())
       .then((data) => {
