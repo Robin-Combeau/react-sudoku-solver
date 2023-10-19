@@ -22,11 +22,11 @@ export default function SudokuSolver() {
     return (
         <div className="text-center">
             <h1 className="text-4xl font-bold mt-5 mb-2 text-slate-900">Sudoku Solver</h1>
-            <p className="text-1xl mb-10 text-slate-800">by Robin C.</p>
+            <p className="mb-10 text-slate-800">by Robin C.</p>
             <Grid buttonClickInfo={buttonClickInfo} setButtonClickInfo={setButtonClickInfo} onError={handleError}/>
             <Controls onButtonClick={handleButtonClick} />
             {/* <p>ClickInfo: {buttonClickInfo}</p> */}
-            {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display the error message if it exists */}
+            {error && <p className="font-bold text-red-600">{error}</p>} {/* Display the error message if it exists */}
         </div>
     );
 }
