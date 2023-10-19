@@ -11,7 +11,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0]
-  ]
+  ];
   const [grid, setGrid] = useState(emptyGrid);
 
   useEffect(() => {
