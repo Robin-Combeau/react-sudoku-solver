@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
+  // States and Constants
   const emptyGrid = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -14,8 +15,8 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
   ];
   const [grid, setGrid] = useState(emptyGrid);
 
-  useEffect(() => {
-    // Fetch the initial Sudoku grid from the API
+  // Fetch a new grid from the external API
+  const fetchNewGrid = (errorMessage) => {
     fetch('https://sudoku-api.vercel.app/api/dosuku')
       .then((response) => response.json())
       .then((data) => {
@@ -23,10 +24,33 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
         setGrid(newGrid);
       })
       .catch((error) => {
-        console.error('Error fetching initial grid:', error);
+        console.error(errorMessage, error);
         setGrid(emptyGrid);
       });
+  };
+
+  // Use Effects
+  useEffect(() => {
+    fetchNewGrid('Error fetching initial grid:');
   }, []);
+
+  // Button Events
+  useEffect(() => {
+    // "Clear" Button
+    if (buttonClickInfo === 'clear') {
+      setGrid(emptyGrid);
+    }
+    // "New Grid" Button
+    else if (buttonClickInfo === 'new') {
+      setGrid(emptyGrid);
+      fetchNewGrid('Error fetching new grid:');
+    }
+    // "Solve" Button
+    else if (buttonClickInfo === 'solve') {
+      solveSudoku();
+    }
+    setButtonClickInfo('');
+  }, [buttonClickInfo]);
 
   // Update grid on every right input
   const inputChange = (event, rowIndex, colIndex) => {
@@ -40,41 +64,9 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
     }
   };
 
-  const clearGrid = () => {
-    setGrid(emptyGrid);
-  };
-
-  // "Clear" Button
-  useEffect(() => {
-    if (buttonClickInfo === 'clear') {
-      clearGrid();
-      setButtonClickInfo('');
-    }
-  }, [buttonClickInfo]);
-
-  // "New" Button
-  useEffect(() => {
-    if (buttonClickInfo === 'new') {
-      setGrid(emptyGrid);
-      // Fetch a new grid
-      fetch('https://sudoku-api.vercel.app/api/dosuku')
-        .then((response) => response.json())
-        .then((data) => {
-          const newGrid = data.newboard.grids[0].value;
-          setGrid(newGrid);
-        })
-        .catch((error) => {
-          setGrid(emptyGrid);
-          console.error('Error fetching new grid:', error);
-        });
-      setButtonClickInfo('');
-    }
-  }, [buttonClickInfo]);
-
-
   // Solve Sudoku algorithm
   const solveSudoku = () => {
-    const solvedGrid = grid.map(row => [...row]);
+    const solvedGrid = [...grid];
 
     function isValid(r, c, num) {
       for (let i = 0; i < 9; i++) {
@@ -85,7 +77,6 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
 
       const boxRow = Math.floor(r / 3) * 3;
       const boxCol = Math.floor(c / 3) * 3;
-
       for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
           if (solvedGrid[boxRow + i][boxCol + j] === num) {
@@ -93,7 +84,6 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
           }
         }
       }
-
       return true;
     }
 
@@ -123,16 +113,7 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
     } else {
       onError('There is an error in the grid. No solution was found.');
     }
-
   };
-
-  // "Solve" button
-  useEffect(() => {
-    if (buttonClickInfo === 'solve') {
-      solveSudoku();
-      setButtonClickInfo('');
-    }
-  }, [buttonClickInfo]);
 
   return (
     <>
@@ -156,8 +137,6 @@ export default function Grid({ buttonClickInfo, setButtonClickInfo, onError }) {
               value={value || ''} // if value = false (0 is false)
               onChange={(e) => inputChange(e, rowIndex, colIndex)}
               className="w-8 h-8 text-center border border-slate-300 focus:outline-0 focus:border-slate-500"
-              data-x={colIndex}
-              data-y={rowIndex}
             />
           ))
         )}
